@@ -48,7 +48,7 @@ def main():
     parser.add_argument('--conjunto', choices=['ecommerce', 'mechanical_tools', 'todos'],
                        default='todos', help='Conjunto a procesar')
     parser.add_argument('--algoritmos', nargs='+', 
-                       default=['momentos', 'sift', 'hog'],
+                       default=['momentos', 'sift', 'hog', 'embeddings'],
                        help='Algoritmos a aplicar')
     parser.add_argument('--muestra', type=int, default=None,
                        help='Número de imágenes a procesar (None = todas)')
@@ -188,16 +188,16 @@ def procesarConjunto(nombreConjunto: str, algoritmos: list,
     print(f"\nProcesando imágenes...")
     prep = PreprocesadorImagen(tamanoObjetivo)
     cfg = CONFIGURACION_PREPROCESAMIENTO
-    contador_por_clase = {}  # Contador de imágenes por clase
+    contadorPorClase = {}  # Contador de imágenes por clase
     for i, ruta in enumerate(tqdm(image_paths, desc="Procesando", unit="img"), start=1):
         try:
             #1.- Cargar imagen
-            img_orig = prep.cargarImagen(ruta)
+            imagenOriginal = prep.cargarImagen(ruta)
 
             #2.- Preprocesar imagen
 
             resultados= prep.preprocesarImagen(
-                img_orig,
+                imagenOriginal,
                 espacioColor=cfg.get('espacioColor', 'grayscale'),
                 normalizar=cfg.get('normalizar', True),
                 binarizar=True,
@@ -211,11 +211,14 @@ def procesarConjunto(nombreConjunto: str, algoritmos: list,
             )
 
 
-            # 3.- Extraer características (Momentos, SIFT, HOG)
-            res = processor.extraerDesdePreprocesadas(ruta, 
-                                                      procBase,#Imagen preprocesada y eliminada de ruido
-                                                      binaria, #Imagen binarizada
-                                                      algoritmos)
+            # 3.- Extraer características (Momentos, SIFT, HOG, embeddings)
+            res = processor.extraerDesdePreprocesadas(
+                ruta,
+                imagenOriginal,  # Imagen original en color (RGB/BGR)
+                procBase,  # Imagen preprocesada y eliminada de ruido (grayscale)
+                binaria,   # Imagen binarizada
+                algoritmos,
+            )
             # Adjuntar análisis si existe
             if analisisBase and res.get('analisisImagen') is None:
                 res['analisisImagen'] = analisisBase
@@ -227,12 +230,12 @@ def procesarConjunto(nombreConjunto: str, algoritmos: list,
                 clase = Path(ruta).parent.name
                 
                 # Incrementar contador para esta clase
-                if clase not in contador_por_clase:
-                    contador_por_clase[clase] = 0
-                contador_por_clase[clase] += 1
+                if clase not in contadorPorClase:
+                    contadorPorClase[clase] = 0
+                contadorPorClase[clase] += 1
                 
                 # Estructura: clase/img{contador}/archivos
-                carpeta_destino = os.path.join(dirImagenesFinal, clase, f"img{contador_por_clase[clase]}")
+                carpeta_destino = os.path.join(dirImagenesFinal, clase, f"img{contadorPorClase[clase]}")
                 rutas_destino = {
                     'original': os.path.join(carpeta_destino, f"original_{nombre}"),
                     'preprocesada': os.path.join(carpeta_destino, f"preprocesada_{nombre}"),
@@ -240,7 +243,7 @@ def procesarConjunto(nombreConjunto: str, algoritmos: list,
                     'histograma': os.path.join(carpeta_destino, f"histograma_{nombre}")
                 }
                 imgs_a_guardar = {
-                    'original': img_orig,
+                    'original': imagenOriginal,
                     'preprocesada': procBase,
                     'binaria': binaria
                 }

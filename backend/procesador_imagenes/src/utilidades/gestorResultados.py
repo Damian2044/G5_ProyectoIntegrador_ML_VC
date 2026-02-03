@@ -97,9 +97,10 @@ class GestorResultados:
         self._guardarCsvMomentos(resultados)
         self._guardarCsvMomentosHu(resultados)
         self._guardarCsvMomentosZernike(resultados)
-        # Guardar CSVs específicos de SIFT y HOG
+        # Guardar CSVs específicos de SIFT, HOG y embeddings
         self._guardarCsvSift(resultados)
         self._guardarCsvHog(resultados)
+        self._guardarCsvEmbeddings(resultados)
     
     def _guardarCsvMomentos(self, resultados: Dict):
         """Guarda CSV solo con 24 momentos (crudos, centrales, normalizados)"""
@@ -248,6 +249,33 @@ class GestorResultados:
         df = pd.DataFrame(filas)
         df.to_csv(ruta, index=False)
         print(f"CSV de HOG guardado en {ruta}")
+
+    def _guardarCsvEmbeddings(self, resultados: Dict):
+        """Guarda CSV con vectores de embeddings profundos completos"""
+        ruta = self.directorioSalida / 'embeddings.csv'
+        filas = []
+        for idx, img in enumerate(resultados.get('imagenes', [])):
+            rutaImagen = img.get('rutaImagen')
+            etiqueta = Path(rutaImagen).parent.name if rutaImagen else 'desconocida'
+            fila = {
+                'rutaImagen': rutaImagen,
+                'etiqueta': etiqueta,
+                'estado': img.get('estado'),
+                'tamanoVector': None,
+            }
+            if img.get('estado') == 'exito':
+                caracteristicas = img.get('caracteristicas', {})
+                if 'embeddings' in caracteristicas:
+                    datos = caracteristicas['embeddings']
+                    vector = datos.get('vectorCaracteristicas', [])
+                    fila['tamanoVector'] = datos.get('tamanoVector', len(vector))
+                    for i, valor in enumerate(vector):
+                        fila[f'v{i}'] = valor
+            filas.append(fila)
+
+        df = pd.DataFrame(filas)
+        df.to_csv(ruta, index=False)
+        print(f"CSV de embeddings guardado en {ruta}")
 
 
 

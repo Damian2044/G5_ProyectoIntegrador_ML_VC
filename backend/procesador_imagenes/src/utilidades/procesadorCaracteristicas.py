@@ -1,16 +1,16 @@
-"""
-Procesador principal de características
-"""
+"""Procesador principal de características"""
 
-import numpy as np
-from typing import Dict, List, Optional
 import json
 from pathlib import Path
+from typing import Dict, List, Optional
+
+import numpy as np
 
 from ..extraccionCaracteristicas import (
     ExtractorMomentos,
     ExtractorSift,
-    ExtractorHog
+    ExtractorHog,
+    ExtractorEmbeddingsRedProfunda,
 )
 from config import PARAMETROS_CARACTERISTICAS
 
@@ -51,19 +51,25 @@ class ProcesadorCaracteristicas:
             celdasPorBloque=tuple(params_hog.get('celdasPorBloque', (2, 2))),
             normalizacionBloque=params_hog.get('normalizacionBloque', 'L2-Hys')
         )
+        self.extractorEmbeddings = ExtractorEmbeddingsRedProfunda()
         self.resultados = {}
 
-    def extraerDesdePreprocesadas(self, rutaImagen: str,
-                                   imagenGrayscale: np.ndarray,
-                                   imagenBinaria: Optional[np.ndarray],
-                                   algoritmos: List[str]) -> Dict:
+    def extraerDesdePreprocesadas(
+        self,
+        rutaImagen: str,
+        imagenOriginalColor: np.ndarray,
+        imagenGrayscale: np.ndarray,
+        imagenBinaria: Optional[np.ndarray],
+        algoritmos: List[str],
+    ) -> Dict:
         """
         Extrae características usando imágenes ya preprocesadas (sin volver a leer ni preprocesar).
         - Momentos: usa imagenBinaria si está disponible; en su defecto usa imagenGrayscale.
         - SIFT y HOG: usan imagenGrayscale.
+        - Embeddings: usan la imagen original en color (imagenOriginalColor).
         """
         if algoritmos is None:
-            algoritmos = ['momentos', 'sift', 'hog']
+            algoritmos = ['momentos', 'sift', 'hog', 'embeddings']
 
         resultado = {
             'rutaImagen': str(rutaImagen),
@@ -101,6 +107,14 @@ class ProcesadorCaracteristicas:
                 resultado['caracteristicas']['hog'] = {
                     'tamanoVector': len(vecHog),
                     'vectorCaracteristicas': vecHog.tolist()
+                }
+
+            # Embeddings de red profunda (ResNet18) usando la imagen original en color
+            if 'embeddings' in algoritmos:
+                vecEmbeddings = self.extractorEmbeddings.extraerEmbeddings(imagenOriginalColor)
+                resultado['caracteristicas']['embeddings'] = {
+                    'tamanoVector': int(len(vecEmbeddings)),
+                    'vectorCaracteristicas': vecEmbeddings.tolist(),
                 }
 
         except Exception as e:

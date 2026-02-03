@@ -726,7 +726,7 @@ class PreprocesadorImagen:
         # -------------------------------
         if binarizar:
             imgBinarizada = self.binarizar(imgProcesada)
-            imgBinarizada = self.aplicarMorfologia(imgBinarizada, operacion='close', tamanoKernel=5, iteraciones=1)
+            imgBinarizada = self.aplicarMorfologia(imgBinarizada, operacion='close', tamanoKernel=5, iteraciones=2)
             resultado['binarizada'] = imgBinarizada.copy()
         else:
             resultado['binarizada'] = None

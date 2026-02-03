@@ -101,12 +101,9 @@ class ExtractorSift:
         magnitudes = np.linalg.norm(descriptores, axis=1)
         hist, _ = np.histogram(magnitudes, bins=10, range=(0, 256))
         caracteristicas.extend(hist)
-
-        # Promedio completo por cada dimensión (128 valores)
-        #promediosPorDimension = np.mean(descriptores, axis=0)
-        #caracteristicas.extend(promediosPorDimension.tolist())
-
         return np.array(caracteristicas, dtype=np.float32)
+    
+
     
     def extraerEstadisticasPuntosClave(self, puntosClave: List) -> np.ndarray:
         """
@@ -149,6 +146,24 @@ class ExtractorSift:
         ])
         return np.array(caracteristicas, dtype=np.float32)
     
+    def extraerPromedio128(self, imagen: np.ndarray) -> np.ndarray:
+        """
+        Extrae el vector promedio de 128 dimensiones de los descriptores
+        
+        Args:
+            imagen: Imagen en escala de grises
+            
+        Returns:
+            Vector de 128 dimensiones
+        """
+        _, descriptores = self.detectarYCalcular(imagen)
+        
+        if descriptores is None or len(descriptores) == 0:
+            return np.zeros(128, dtype=np.float32)
+        
+        return np.mean(descriptores, axis=0).astype(np.float32)
+
+
     def extraerCaracteristicas(self, imagen: np.ndarray) -> np.ndarray:
         """
         Extrae características SIFT completas
@@ -166,6 +181,9 @@ class ExtractorSift:
         
         # Estadísticas de puntos clave
         estadPuntos = self.extraerEstadisticasPuntosClave(puntosClave)
+
+        # Promedio de 128 dimensiones
+        promedio128 = self.extraerPromedio128(imagen)
         
         # Combinar ambas
-        return np.concatenate([estadPuntos, estadDesc])
+        return np.concatenate([estadDesc, estadPuntos])
