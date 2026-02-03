@@ -1,3 +1,6 @@
+# Modelos entrenados / pesos
+*.pth
+*.pt
 # Ignorar todo recursivamente
 #results/**/imagenes_procesadas/
 results

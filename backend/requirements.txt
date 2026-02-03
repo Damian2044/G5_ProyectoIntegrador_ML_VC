@@ -8,3 +8,13 @@ matplotlib>=3.5.0
 tqdm>=4.62.0
 kagglehub>=0.2.0
 mahotas>=1.4.0
+# Deep embeddings
+tensorflow>=2.13.0
+torch>=2.0.0
+torchvision>=0.15.0
+#Web framework
+fastapi==0.111.0     
+uvicorn[standard]==0.23.2 
+python-multipart >= 0.0.7
+dataframe-image>=0.1.36
+river>=0.7.0
