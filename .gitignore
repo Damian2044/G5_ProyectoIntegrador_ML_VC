@@ -165,6 +165,9 @@ Thumbs.db
 *.png
 *.gif
 
+# No versionar datasets de imágenes originales
+backend/procesador_imagenes/datasets/
+
 # Permitir todos los resultados de clustering (incluye imágenes y CSV)
 !backend/clustering/resultados_imagenes/**
 !backend/clustering/resultados_iris/**
