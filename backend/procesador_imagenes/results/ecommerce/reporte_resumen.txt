@@ -1,0 +1,12 @@
+============================================================
+REPORTE DE PROCESAMIENTO DE IMÁGENES
+============================================================
+
+Total de imágenes procesadas: 796
+Algoritmos aplicados: momentos, sift, hog, embeddings
+Corrección automática: FORZADA
+
+Imágenes procesadas exitosamente: 796
+Imágenes con error: 0
+
+============================================================
