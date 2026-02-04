@@ -136,7 +136,7 @@ function PanelConfiguracion({
                 {parametrosCluster.maxSizes.map((tamano, indice) => (
                   <div key={indice} className="flex items-center gap-2">
                     <span className="text-[10px] w-6 font-mono text-slate-500">
-                      C{indice + 1}
+                      C{indice}
                     </span>
                     <input
                       type="number"
