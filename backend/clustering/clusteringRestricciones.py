@@ -55,6 +55,12 @@ class CluORT:  # Clustering online con restricciones de tamaño
         
         # Para cálculo de métricas aproximadas (siempre se mantienen)
         self.radiosMaximos: List[float] = [0.0] * numClusters  # Radio máximo de cada cluster (distancia máxima al centroide)
+        # Métricas incrementales adicionales para aproximaciones mejoradas
+        self.sumaDistanciasIntra: List[float] = [0.0] * numClusters  # Suma de distancias intra-cluster
+        self.cuentaPuntos: List[int] = [0] * numClusters  # Número de puntos por cluster
+        self.sumaDistanciasInter: List[List[float]] = [[0.0 for _ in range(numClusters)] for _ in range(numClusters)]  # Suma de distancias a otros centroides
+        self.cuentaDistanciasInter: List[List[int]] = [[0 for _ in range(numClusters)] for _ in range(numClusters)]  # Conteo de distancias inter-cluster
+        self.minDistanciaCentroide: List[List[float]] = [[float('inf') for _ in range(numClusters)] for _ in range(numClusters)]  # Mínima distancia observada entre puntos y centroides de otros clusters
         
         # Para escalado online incremental PERMANENTE
         self.habilitarEscalado: bool = escalarDatos  # Si True, escala los puntos por defecto (True por defecto)
@@ -188,71 +194,84 @@ class CluORT:  # Clustering online con restricciones de tamaño
         return np.clip(factorApren, 0.0, 1.0)
     
     def _actualizarCluster(self, idx: int, punto: np.ndarray):
-        """Actualiza un cluster existente con un nuevo punto"""
+        """Actualiza un cluster existente con un nuevo punto y métricas incrementales"""
         diferencia = punto - self.centroidesAct[idx]
         distanciaAlCentroide = np.linalg.norm(diferencia)
-        
+
         self.tamaniosActuales[idx] += 1
         nActual = self.tamaniosActuales[idx]
-        
+
         # Actualizar varianza incremental
         self.varianzas[idx] = ((nActual - 1) * self.varianzas[idx] + np.sum(diferencia ** 2)) / nActual
-        
+
         # Actualizar radio máximo (para Dunn aproximado)
         if distanciaAlCentroide > self.radiosMaximos[idx]:
             self.radiosMaximos[idx] = distanciaAlCentroide
-        
+
+        # Actualizar métricas incrementales intra-cluster
+        self.sumaDistanciasIntra[idx] += distanciaAlCentroide
+        self.cuentaPuntos[idx] += 1
+
+        # Actualizar métricas incrementales inter-cluster (distancia a otros centroides)
+        for j, centroide in enumerate(self.centroidesAct):
+            if j != idx:
+                distInter = np.linalg.norm(punto - centroide)
+                self.sumaDistanciasInter[idx][j] += distInter
+                self.cuentaDistanciasInter[idx][j] += 1
+                # Actualizar mínima distancia observada entre punto y centroide de otro cluster
+                if distInter < self.minDistanciaCentroide[idx][j]:
+                    self.minDistanciaCentroide[idx][j] = distInter
+
         # Actualizar centroide con factor adaptativo
         factorAprendizaje = self._calcularFactorAprendizaje()
         nuevoCentroide = self.centroidesAct[idx] + factorAprendizaje * diferencia
-        
+
         # Validar que el nuevo centroide no tenga NaN o Inf
         if not np.any(np.isnan(nuevoCentroide)) and not np.any(np.isinf(nuevoCentroide)):
             self.centroidesAct[idx] = nuevoCentroide
-        
+
         self.etiquetasAsignadas.append(idx)
-        
+
         # Almacenar puntos según configuración (para posibles métricas exactas)
         if self.guardarPuntos:
+
             self.puntosCluster[idx].append(punto.copy())
     
     def _calcularSiluetaAproximada(self) -> float:
         """
-        Calcula silueta aproximada basada en centroides
-        Para cada punto asignado, usa la distancia al centroide propio vs otros centroides
+        Calcula silueta aproximada mejorada usando métricas incrementales.
+        Para cada cluster, usa la distancia promedio intra-cluster y la distancia promedio mínima a otros centroides.
         """
-        if len(self.centroidesAct) < 2 or len(self.etiquetasAsignadas) < 2:
+        if len(self.centroidesAct) < 2 or sum(self.cuentaPuntos) < 2:
             return 0.0
-        
+
         siluetaTotal = 0.0
         contPuntos = 0
-        
-        # Para cada cluster, estimar silueta promedio
+
         for idxCluster in range(len(self.centroidesAct)):
-            if self.tamaniosActuales[idxCluster] == 0:
+            nPuntos = self.cuentaPuntos[idxCluster]
+            if nPuntos == 0:
                 continue
-            
-            # a(i) ≈ desviación estándar del cluster (aproximación de distancia intra-cluster)
-            aPromedio = np.sqrt(self.varianzas[idxCluster])
-            
-            # b(i) = mínima distancia a otros centroides
-            distanciasACentroides = []
+            # a(i): distancia promedio intra-cluster
+            aPromedio = self.sumaDistanciasIntra[idxCluster] / nPuntos if nPuntos > 0 else 0.0
+
+            # b(i): mínima distancia promedio a otros centroides (usando promedios inter-cluster)
+            bPromedio = float('inf')
             for idxOtro in range(len(self.centroidesAct)):
-                if idxOtro != idxCluster and self.tamaniosActuales[idxOtro] > 0:
-                    dist = np.linalg.norm(self.centroidesAct[idxCluster] - self.centroidesAct[idxOtro])
-                    distanciasACentroides.append(dist)
-            
-            if not distanciasACentroides:
+                if idxOtro != idxCluster and self.cuentaDistanciasInter[idxCluster][idxOtro] > 0:
+                    bCandidato = self.sumaDistanciasInter[idxCluster][idxOtro] / self.cuentaDistanciasInter[idxCluster][idxOtro]
+                    if bCandidato < bPromedio:
+                        bPromedio = bCandidato
+
+            if bPromedio == float('inf'):
                 continue
-            
-            bPromedio = min(distanciasACentroides)
-            
+
             # Silueta para este cluster
             if max(aPromedio, bPromedio) > 0:
                 siluetaCluster = (bPromedio - aPromedio) / max(aPromedio, bPromedio)
-                siluetaTotal += siluetaCluster * self.tamaniosActuales[idxCluster]
-                contPuntos += self.tamaniosActuales[idxCluster]
-        
+                siluetaTotal += siluetaCluster * nPuntos
+                contPuntos += nPuntos
+
         return siluetaTotal / contPuntos if contPuntos > 0 else 0.0
     
     def _calcularSiluetaExacta(self, puntos: np.ndarray) -> float:
@@ -267,24 +286,22 @@ class CluORT:  # Clustering online con restricciones de tamaño
     
     def _calcularDunnAproximado(self) -> float:
         """
-        Calcula índice de Dunn aproximado usando centroides y radios máximos
-        Dunn = separación_mínima / diámetro_máximo
+        Calcula índice de Dunn aproximado mejorado usando métricas incrementales.
+        Dunn = separación_mínima observada entre puntos y centroides de otros clusters / diámetro_máximo (2*radio máximo)
         """
         if len(self.centroidesAct) < 2:
             return 0.0
-        
-        # Calcular separación mínima entre centroides
+
+        # Separación mínima observada entre puntos y centroides de otros clusters
         separacionMin = float('inf')
         for i in range(len(self.centroidesAct)):
             if self.tamaniosActuales[i] == 0:
                 continue
-            for j in range(i + 1, len(self.centroidesAct)):
-                if self.tamaniosActuales[j] == 0:
-                    continue
-                dist = np.linalg.norm(self.centroidesAct[i] - self.centroidesAct[j])
-                if dist < separacionMin:
-                    separacionMin = dist
-        
+            for j in range(len(self.centroidesAct)):
+                if i != j and self.tamaniosActuales[j] > 0:
+                    if self.minDistanciaCentroide[i][j] < separacionMin:
+                        separacionMin = self.minDistanciaCentroide[i][j]
+
         # Calcular diámetro máximo aproximado (2 × radio máximo)
         diametroMax = 0.0
         for i in range(len(self.centroidesAct)):
@@ -292,10 +309,10 @@ class CluORT:  # Clustering online con restricciones de tamaño
                 diametroAprox = 2 * self.radiosMaximos[i]
                 if diametroAprox > diametroMax:
                     diametroMax = diametroAprox
-        
-        if diametroMax == 0.0:
+
+        if diametroMax == 0.0 or separacionMin == float('inf'):
             return 0.0
-        
+
         return separacionMin / diametroMax
     
     def _calcularDunnExacto(self) -> float:

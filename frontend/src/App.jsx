@@ -226,6 +226,7 @@ function App() {
       setTamaniosActuales([]);
       setProyeccionPCA(null);
       lastSelectedIndexRef.current = null;
+      window.location.reload();
     } else {
       // INICIAR
       if (processedImages.length < 1) {
