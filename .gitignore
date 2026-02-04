@@ -1,9 +1,14 @@
 # Modelos entrenados / pesos
 *.pth
 *.pt
-# Ignorar todo recursivamente
-#results/**/imagenes_procesadas/
-results
+# Resultados: permitir CSV/JSON/TXT, ignorar solo imágenes procesadas pesadas
+backend/procesador_imagenes/results/**/imagenes_procesadas/
+backend/procesador_imagenes/results/**/*.jpg
+backend/procesador_imagenes/results/**/*.jpeg
+backend/procesador_imagenes/results/**/*.png
+!backend/procesador_imagenes/results/**/*.csv
+!backend/procesador_imagenes/results/**/*.json
+!backend/procesador_imagenes/results/**/*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -155,7 +160,11 @@ Thumbs.db
 *.mp4
 *.avi
 *.mov
-*.jpg
+#*.jpg
 *.jpeg
 *.png
 *.gif
+
+# Permitir todos los resultados de clustering (incluye imágenes y CSV)
+!backend/clustering/resultados_imagenes/**
+!backend/clustering/resultados_iris/**

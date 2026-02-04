@@ -119,3 +119,69 @@ En esta fase se realiza:
 Crear una aplicación web interactiva que permita visualizar y probar el sistema de clustering online de imágenes.
 
 
+---
+
+## 🚀 Cómo clonar y ejecutar el proyecto
+
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/Damian2044/G5_ProyectoIntegrador_ML_VC.git
+cd G5_ProyectoIntegrador_ML_VC
+```
+
+---
+
+### 2. Backend (FastAPI)
+
+Requisitos previos:
+- Python 3.10+ instalado
+- pip disponible en la línea de comandos
+
+Desde la carpeta raíz del proyecto:
+
+```bash
+cd backend
+
+# (Opcional) Crear y activar entorno virtual en Windows PowerShell
+python -m venv .venv
+.venv\\Scripts\\activate
+
+# Instalar dependencias
+pip install -r requirements.txt
+
+
+# Ejecutar servidor FastAPI con Uvicorn
+uvicorn app.app:app --reload --host 0.0.0.0 --port 8000
+```
+
+El backend quedará disponible en:
+- API base: http://localhost:8000
+- Documentación interactiva: http://localhost:8000/docs
+
+---
+
+### 3. Frontend (aplicación web)
+
+Requisitos previos:
+- Node.js 18+ y npm instalados
+
+En una nueva terminal, desde la carpeta raíz del proyecto:
+
+```bash
+cd frontend
+
+# Instalar dependencias
+npm install
+
+# Ejecutar en modo desarrollo
+npm run dev -- --host
+```
+
+Por defecto, la aplicación web quedará disponible en una URL similar a:
+
+- Vite/React: http://localhost:5173
+
+
+
+
