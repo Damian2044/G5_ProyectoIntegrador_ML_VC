@@ -185,4 +185,35 @@ class ExtractorMomentos:
             'vectorCaracteristicas': vectorCaracteristicas
         }
 
+    def extraer24Momentos(self, imagen: np.ndarray) -> np.ndarray:
+        """Extrae 24 momentos (10 crudos, 7 centrales, 7 normalizados)
+        y los devuelve como vector numérico en un solo vector.
+        """
+
+        # Asegurar imagen 2D en uint8
+        if imagen is None:
+            raise ValueError("La imagen para extraer momentos es None")
+
+        if imagen.ndim == 3:
+            imagenGray = cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY)
+        else:
+            imagenGray = imagen
+
+        if imagenGray.dtype != np.uint8:
+            if imagenGray.max() <= 1.0:
+                imagenGray = (imagenGray * 255).astype(np.uint8)
+            else:
+                imagenGray = imagenGray.astype(np.uint8)
+
+        clavesMomentos24 = [
+            "m00", "m10", "m01", "m20", "m11", "m02",
+            "m30", "m21", "m12", "m03",
+            "mu20", "mu11", "mu02", "mu30", "mu21", "mu12", "mu03",
+            "nu20", "nu11", "nu02", "nu30", "nu21", "nu12", "nu03",
+        ]
+
+        m = cv2.moments(imagenGray)
+        vector = np.array([m.get(k, 0.0) for k in clavesMomentos24], dtype=np.float32)
+        return vector
+    
 

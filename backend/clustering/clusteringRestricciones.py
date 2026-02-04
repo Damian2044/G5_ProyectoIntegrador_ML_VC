@@ -62,7 +62,7 @@ class CluORT:  # Clustering online con restricciones de tamaño
         self.mediaAcumulada: np.ndarray = None  # Media corriente de todas las características (inicializada en primer punto)
         self.varianzaAcumulada: np.ndarray = None  # Varianza corriente de todas las características (inicializada en primer punto)
 
-    def actualizarTamaniosActuales(self, tamaniosNuevos: List[int]) -> dict:
+    def actualizarTamaniosMaximos(self, tamaniosNuevos: List[int]) -> dict:
         """
         Actualiza los tamaños máximos de los clusters
         Args:
