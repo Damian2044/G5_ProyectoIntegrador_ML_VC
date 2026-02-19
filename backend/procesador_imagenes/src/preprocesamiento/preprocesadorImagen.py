@@ -5,8 +5,6 @@ Clase para preprocesamiento de imágenes
 import cv2
 import numpy as np
 import os
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 from typing import Tuple, Optional, Dict
 from pathlib import Path
 
@@ -509,6 +507,8 @@ class PreprocesadorImagen:
     def graficarHistogramaImagen(self, imagenGris: np.ndarray, titulo: str = "Imagen", 
                                  guardarRuta: str = None, fondoBlanco: bool = True,
                                  analisis: Optional[Dict] = None):
+        import matplotlib.pyplot as plt
+        import matplotlib.gridspec as gridspec
         """
         Clasifica la imagen por histograma y grafica imagen + histograma con detalles
         

@@ -437,9 +437,9 @@ function App() {
         <header className="h-20 shrink-0 border-b border-slate-800 bg-slate-900/80 backdrop-blur-md px-8 flex items-center justify-between z-10 relative">
           <div>
             <h1 className="text-2xl font-bold text-white tracking-tight">
-              Proyecto Integrador: Visión por Computador y Aprendizaje Automático
+              StreamClust: Agrupamiento de Imágenes con IA en Streaming
             </h1>
-            <p className="text-xs text-slate-500">Carga, etiquetado y clustering de imágenes</p>
+            <p className="text-xs text-slate-500">Proyecto Integrador: Visión por Computador y Aprendizaje Automático</p>
           </div>
         </header>
 

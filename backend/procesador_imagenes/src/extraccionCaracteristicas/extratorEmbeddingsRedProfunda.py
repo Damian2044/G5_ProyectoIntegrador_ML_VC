@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Optional, Union
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 import torch
 from torchvision import models, transforms

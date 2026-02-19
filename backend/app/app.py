@@ -28,7 +28,7 @@ TAMANIO_OBJETIVO = (224, 224)
 
 # Controlar si se calcula/proyecta PCA 2D para visualización.
 # Variable de entorno HABILITAR_PCA: "1", "true", "si", "yes" -> activa.
-HABILITAR_PCA = os.getenv("HABILITAR_PCA", "0").strip().lower() in {"1", "true", "si", "yes"}
+HABILITAR_PCA = os.getenv("HABILITAR_PCA", "true").strip().lower() in {"1", "true", "si", "yes"}
 
 
 ##########################
