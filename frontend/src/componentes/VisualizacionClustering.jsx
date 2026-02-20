@@ -1,15 +1,5 @@
 import React from 'react';
-
-const COLORES_CLUSTER = [
-  '#06b6d4',
-  '#ec4899',
-  '#eab308',
-  '#8b5cf6',
-  '#10b981',
-  '#f97316',
-  '#ef4444',
-  '#6366f1',
-];
+import { obtenerPaletaClusters } from '../lib/paletaClusters';
 
 const PuntoCluster = ({ x, y, color, esCentroide }) => (
   <div
@@ -83,18 +73,46 @@ function normalizarCoordenadas(puntos, centroides) {
   return { puntosNorm, centroidesNorm };
 }
 
-function VisualizacionClustering({ proyeccionPCA }) {
+function VisualizacionClustering({ proyeccionPCA, cantidadClusters = 1 }) {
+  const [abierto, setAbierto] = React.useState(true);
+
   if (!proyeccionPCA || !Array.isArray(proyeccionPCA.puntos) || proyeccionPCA.puntos.length === 0) {
     return null;
   }
 
   const { puntos, centroides } = proyeccionPCA;
   const { puntosNorm, centroidesNorm } = normalizarCoordenadas(puntos, centroides);
+  const paleta = obtenerPaletaClusters(cantidadClusters);
 
   return (
-    <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col gap-3">
-      <div className="flex items-center justify-between">
+    <section className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+      <div
+        className="h-14 bg-slate-800/60 border-b border-slate-800 flex items-center px-4 justify-between cursor-pointer"
+        onClick={() => setAbierto((v) => !v)}
+      >
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setAbierto((prev) => !prev);
+            }}
+            className="w-6 h-6 flex items-center justify-center rounded hover:bg-slate-700/80 transition-colors text-slate-300"
+            title={abierto ? 'Cerrar visualización PCA' : 'Abrir visualización PCA'}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="w-4 h-4"
+            >
+              <path
+                fillRule="evenodd"
+                d="M1 2.75A.75.75 0 011.75 2h16.5a.75.75 0 010 1.5H1.75A.75.75 0 011 2.75zm0 9A.75.75 0 011.75 11h16.5a.75.75 0 010 1.5H1.75A.75.75 0 011 11.75zm0 5A.75.75 0 011.75 16h16.5a.75.75 0 010 1.5H1.75A.75.75 0 011 16.75zM1.75 7a.75.75 0 000 1.5h16.5a.75.75 0 000-1.5H1.75z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
           <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-bold">
             2D
           </span>
@@ -105,26 +123,41 @@ function VisualizacionClustering({ proyeccionPCA }) {
         <span className="text-[10px] text-slate-500">{puntosNorm.length} puntos</span>
       </div>
 
-      <div className="relative w-full h-64 bg-slate-950/80 rounded-xl overflow-hidden border border-slate-800">
-        {/* Ejes simples */}
-        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-800/60" />
-        <div className="absolute top-1/2 left-0 right-0 h-px bg-slate-800/60" />
+      {abierto && (
+        <div className="p-4 flex flex-col gap-3">
+          <div className="relative w-full h-64 bg-slate-950/80 rounded-xl overflow-hidden border border-slate-800">
+            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-800/60" />
+            <div className="absolute top-1/2 left-0 right-0 h-px bg-slate-800/60" />
 
-        {puntosNorm.map((p) => {
-          const color = COLORES_CLUSTER[(p.cluster ?? 0) % COLORES_CLUSTER.length];
-          return <PuntoCluster key={p.idFront} x={p.x} y={p.y} color={color} esCentroide={false} />;
-        })}
+            {puntosNorm.map((p) => {
+              const color = paleta[(p.cluster ?? 0) % paleta.length];
+              return <PuntoCluster key={p.idFront} x={p.x} y={p.y} color={color} esCentroide={false} />;
+            })}
 
-        {centroidesNorm.map((c) => {
-          const color = COLORES_CLUSTER[(c.cluster ?? 0) % COLORES_CLUSTER.length];
-          return <PuntoCluster key={`centroide-${c.cluster}`} x={c.x} y={c.y} color={color} esCentroide />;
-        })}
-      </div>
+            {centroidesNorm.map((c) => {
+              const color = paleta[(c.cluster ?? 0) % paleta.length];
+              return <PuntoCluster key={`centroide-${c.cluster}`} x={c.x} y={c.y} color={color} esCentroide />;
+            })}
+          </div>
 
-      <p className="text-[10px] text-slate-500">
-        Esta vista es una proyección PCA incremental a 2 dimensiones de los vectores reales; solo se usa para
-        visualizar, el clustering se hace siempre en el espacio completo.
-      </p>
+          <div className="flex flex-wrap gap-2">
+            {paleta.map((color, indice) => (
+              <div
+                key={`leyenda-${indice}`}
+                className="inline-flex items-center gap-1.5 bg-slate-900/70 border border-slate-700 rounded-full px-2 py-1"
+              >
+                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
+                <span className="text-[10px] text-slate-300 font-mono">C{indice}</span>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-[10px] text-slate-500">
+            Esta vista es una proyección PCA incremental a 2 dimensiones de los vectores reales; solo se usa para
+            visualizar, el clustering se hace siempre en el espacio completo.
+          </p>
+        </div>
+      )}
     </section>
   );
 }

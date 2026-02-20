@@ -195,16 +195,28 @@ function App() {
   const handleKChange = (e) => {
     if (isClustering) return; 
     const val = parseInt(e.target.value);
-    if (!val || val < 1 || val > 10) return;
+    if (!Number.isFinite(val) || val < 1) return;
     const newMaxSizes = new Array(val).fill(10);
     setClusterParams(prev => ({ ...prev, k: val, maxSizes: newMaxSizes }));
   };
 
   const handleMaxSizeChange = (index, newVal) => {
-    const val = parseInt(newVal) || 1;
+    const valorParseado = parseInt(newVal);
+    const referenciaMinima = isClustering ? (initialMaxSizes[index] ?? 1) : 1;
+    const val = Number.isFinite(valorParseado) ? Math.max(valorParseado, referenciaMinima) : referenciaMinima;
     const newSizes = [...clusterParams.maxSizes];
     newSizes[index] = val;
     setClusterParams(prev => ({ ...prev, maxSizes: newSizes }));
+  };
+
+  const handleApplySameMaxSize = (newVal) => {
+    if (isClustering) return;
+    const val = parseInt(newVal);
+    if (!Number.isFinite(val) || val < 1) return;
+    setClusterParams((prev) => ({
+      ...prev,
+      maxSizes: new Array(prev.k).fill(val),
+    }));
   };
 
   // --- START / STOP CLUSTERING ---
@@ -304,14 +316,14 @@ function App() {
   const confirmarAumentoTamanios = async () => {
     if (!isClustering || !idSesionClustering) return;
 
-    // Validación frontend: no permitir valores menores que los tamaños actuales
-    if (Array.isArray(tamaniosActuales) && tamaniosActuales.length > 0) {
+    // Validación frontend: solo permitir subir (o mantener) respecto al límite vigente
+    if (Array.isArray(initialMaxSizes) && initialMaxSizes.length === clusterParams.maxSizes.length) {
       for (let i = 0; i < clusterParams.maxSizes.length; i++) {
-        const actual = tamaniosActuales[i] ?? 0;
+        const referencia = initialMaxSizes[i] ?? 0;
         const propuesto = clusterParams.maxSizes[i] ?? 0;
-        if (propuesto < actual) {
+        if (propuesto < referencia) {
           alert(
-            `El tamaño máximo de C${i + 1} (${propuesto}) no puede ser menor que el tamaño actual (${actual}).`
+            `El tamaño máximo de C${i + 1} (${propuesto}) no puede ser menor que el límite vigente (${referencia}).`
           );
           return;
         }
@@ -324,14 +336,31 @@ function App() {
       });
 
       if (respuesta?.estado === 'ok' && Array.isArray(respuesta.tamaniosMaximos)) {
+        const tamaniosPrevios = [...initialMaxSizes];
+        const tamaniosActualizados = [...respuesta.tamaniosMaximos];
+
         setClusterParams((prev) => ({
           ...prev,
-          maxSizes: [...respuesta.tamaniosMaximos],
+          maxSizes: tamaniosActualizados,
         }));
-        setInitialMaxSizes([...respuesta.tamaniosMaximos]);
+        setInitialMaxSizes(tamaniosActualizados);
         if (Array.isArray(respuesta.tamaniosActuales)) {
           setTamaniosActuales(respuesta.tamaniosActuales);
         }
+
+        const cambios = tamaniosActualizados
+          .map((nuevo, i) => {
+            const anterior = tamaniosPrevios[i] ?? nuevo;
+            if (nuevo === anterior) return null;
+            return `C${i + 1}: ${anterior} → ${nuevo}`;
+          })
+          .filter(Boolean);
+
+        alert(
+          cambios.length > 0
+            ? `Tamaños máximos actualizados:\n${cambios.join('\n')}`
+            : 'No hubo cambios en los tamaños máximos.'
+        );
       }
     } catch (e) {
       console.error('Error actualizando tamaños máximos', e);
@@ -426,6 +455,7 @@ function App() {
             tamaniosIniciales={initialMaxSizes}
             onCambiarK={handleKChange}
             onCambiarTamanoMaximo={handleMaxSizeChange}
+            onAplicarTamanoTodos={handleApplySameMaxSize}
             onToggleClustering={toggleClustering}
             onAumentarTamanios={confirmarAumentoTamanios}
             onEnviarNuevosDatos={enviarNuevasImagenesAlClustering}
@@ -465,7 +495,10 @@ function App() {
           />
 
           {/* Proyección PCA 2D (visualización) */}
-          <VisualizacionClustering proyeccionPCA={proyeccionPCA} />
+          <VisualizacionClustering
+            proyeccionPCA={proyeccionPCA}
+            cantidadClusters={clusterParams.k}
+          />
 
           {/* Resumen de eventos y métricas del clustering */}
           <PanelEventosClustering eventos={eventosClustering} />

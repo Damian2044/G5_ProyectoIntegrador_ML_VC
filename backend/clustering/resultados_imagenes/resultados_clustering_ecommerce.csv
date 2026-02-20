@@ -1,29 +1,29 @@
 dataset,caracteristica,muestras,features,clases,silueta,dunn,ari,ami,nmi,distribucion,capacidad
-ecommerce,momentos,796,24,4,0.094,0.003,0.274,0.313,0.315,"C0:sofa:181 tshirt:1 tv:17
-C1:jeans:91 sofa:14 tshirt:42 tv:52
-C2:jeans:51 tshirt:82 tv:66
-C3:jeans:57 sofa:4 tshirt:74 tv:64","C0: 199/199
+ecommerce,momentos,796,24,4,0.071,0.002,0.233,0.247,0.25,"C0:jeans:105 sofa:27 tshirt:31 tv:36
+C1:jeans:5 sofa:162 tshirt:7 tv:25
+C2:jeans:49 sofa:6 tshirt:84 tv:60
+C3:jeans:40 sofa:4 tshirt:77 tv:78","C0: 199/199
 C1: 199/199
 C2: 199/199
 C3: 199/199"
-ecommerce,sift,796,57,4,0.116,0.002,0.272,0.29,0.293,"C0:jeans:40 sofa:7 tshirt:91 tv:61
-C1:jeans:127 sofa:44 tshirt:16 tv:12
-C2:jeans:20 tshirt:69 tv:110
-C3:jeans:12 sofa:148 tshirt:23 tv:16","C0: 199/199
+ecommerce,sift,796,57,4,0.028,0.003,0.086,0.106,0.109,"C0:jeans:37 sofa:1 tshirt:73 tv:88
+C1:jeans:77 sofa:23 tshirt:48 tv:51
+C2:jeans:32 sofa:102 tshirt:34 tv:31
+C3:jeans:53 sofa:73 tshirt:44 tv:29","C0: 199/199
 C1: 199/199
 C2: 199/199
 C3: 199/199"
-ecommerce,hog,796,756,4,0.143,0.037,0.532,0.524,0.526,"C0:jeans:160 sofa:1 tshirt:26 tv:12
-C1:sofa:184 tshirt:6 tv:9
-C2:jeans:5 sofa:14 tshirt:34 tv:146
-C3:jeans:34 tshirt:133 tv:32","C0: 199/199
+ecommerce,hog,796,756,4,0.112,0.01,0.361,0.395,0.398,"C0:jeans:29 sofa:1 tshirt:104 tv:65
+C1:sofa:164 tshirt:1 tv:34
+C2:jeans:156 tshirt:34 tv:9
+C3:jeans:14 sofa:34 tshirt:60 tv:91","C0: 199/199
 C1: 199/199
 C2: 199/199
 C3: 199/199"
-ecommerce,embeddings,796,512,4,0.111,0.064,0.738,0.69,0.692,"C0:jeans:176 sofa:3 tshirt:16 tv:4
-C1:jeans:2 sofa:188 tshirt:2 tv:7
-C2:jeans:9 sofa:8 tshirt:8 tv:174
-C3:jeans:12 tshirt:173 tv:14","C0: 199/199
+ecommerce,embeddings,796,512,4,0.056,0.023,0.441,0.455,0.457,"C0:jeans:6 sofa:7 tshirt:43 tv:143
+C1:jeans:1 sofa:181 tshirt:1 tv:16
+C2:jeans:67 tshirt:120 tv:12
+C3:jeans:125 sofa:11 tshirt:35 tv:28","C0: 199/199
 C1: 199/199
 C2: 199/199
 C3: 199/199"

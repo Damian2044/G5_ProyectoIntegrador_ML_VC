@@ -170,3 +170,4 @@ backend/procesador_imagenes/datasets/
 # Permitir todos los resultados de clustering (incluye imágenes y CSV)
 !backend/clustering/resultados_imagenes/**
 !backend/clustering/resultados_iris/**
+pseudocodigo.txt

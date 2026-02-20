@@ -1,21 +1,21 @@
 dataset,caracteristica,muestras,features,clases,silueta,dunn,ari,ami,nmi,distribucion,capacidad
-mechanical_tools,momentos,1214,24,3,0.085,0.006,0.131,0.117,0.118,"C0:Rope:79 Toolbox:192 pliers:64
-C1:Rope:117 Toolbox:79 pliers:286
-C2:Rope:139 Toolbox:211 pliers:47","C0: 335/335
+mechanical_tools,momentos,1214,24,3,0.071,0.003,0.051,0.057,0.058,"C0:Rope:109 Toolbox:196 pliers:30
+C1:Rope:119 Toolbox:139 pliers:224
+C2:Rope:107 Toolbox:147 pliers:143","C0: 335/335
 C1: 482/482
 C2: 397/397"
-mechanical_tools,sift,1214,57,3,0.113,0.061,0.089,0.088,0.089,"C0:Rope:60 Toolbox:172 pliers:103
-C1:Rope:107 Toolbox:119 pliers:256
-C2:Rope:168 Toolbox:191 pliers:38","C0: 335/335
+mechanical_tools,sift,1214,57,3,0.11,0.016,0.064,0.063,0.064,"C0:Rope:61 Toolbox:112 pliers:162
+C1:Rope:190 Toolbox:232 pliers:60
+C2:Rope:84 Toolbox:138 pliers:175","C0: 335/335
 C1: 482/482
 C2: 397/397"
-mechanical_tools,hog,1214,756,3,0.03,0.038,0.1,0.091,0.093,"C0:Rope:81 Toolbox:213 pliers:41
-C1:Rope:105 Toolbox:107 pliers:270
-C2:Rope:149 Toolbox:162 pliers:86","C0: 335/335
+mechanical_tools,hog,1214,756,3,0.014,0.038,0.022,0.021,0.022,"C0:Rope:85 Toolbox:95 pliers:155
+C1:Rope:116 Toolbox:209 pliers:157
+C2:Rope:134 Toolbox:178 pliers:85","C0: 335/335
 C1: 482/482
 C2: 397/397"
-mechanical_tools,embeddings,1214,512,3,0.034,0.254,0.542,0.491,0.492,"C0:Rope:18 Toolbox:19 pliers:298
-C1:Rope:12 Toolbox:397 pliers:73
-C2:Rope:305 Toolbox:66 pliers:26","C0: 335/335
+mechanical_tools,embeddings,1214,512,3,0.022,0.033,0.303,0.266,0.267,"C0:Rope:208 Toolbox:103 pliers:24
+C1:Rope:85 Toolbox:71 pliers:326
+C2:Rope:42 Toolbox:308 pliers:47","C0: 335/335
 C1: 482/482
 C2: 397/397"

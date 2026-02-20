@@ -8,10 +8,13 @@ function PanelConfiguracion({
   tamaniosIniciales,
   onCambiarK,
   onCambiarTamanoMaximo,
+  onAplicarTamanoTodos,
   onToggleClustering,
   onAumentarTamanios,
   onEnviarNuevosDatos,
 }) {
+  const [tamanoComun, setTamanoComun] = React.useState('100');
+
   return (
     <aside className="w-80 bg-slate-900 border-l border-slate-800 flex flex-col shrink-0 z-20 shadow-xl">
       <div className="p-5 border-b border-slate-800">
@@ -117,7 +120,6 @@ function PanelConfiguracion({
               <input
                 type="number"
                 min="1"
-                max="10"
                 value={parametrosCluster.k}
                 onChange={onCambiarK}
                 disabled={estaClustering}
@@ -132,6 +134,30 @@ function PanelConfiguracion({
               <label className="text-[10px] text-slate-400 font-bold block mb-2">
                 Tamaños Máximos por Cluster
               </label>
+              {!estaClustering && (
+                <div className="flex items-center gap-2 mb-2">
+                  <input
+                    type="number"
+                    min="1"
+                    value={tamanoComun}
+                    onChange={(e) => setTamanoComun(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        onAplicarTamanoTodos(tamanoComun);
+                      }
+                    }}
+                    className="flex-1 bg-slate-900/50 border border-slate-700 rounded px-2 py-1.5 text-xs outline-none transition-all focus:border-cyan-500 text-white"
+                    placeholder="Ej: 100"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => onAplicarTamanoTodos(tamanoComun)}
+                    className="text-[11px] font-bold px-2.5 py-1.5 rounded border transition-colors border-cyan-500/60 text-cyan-300 hover:bg-cyan-500/10"
+                  >
+                    Aplicar a todos
+                  </button>
+                </div>
+              )}
               <div className="space-y-2 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
                 {parametrosCluster.maxSizes.map((tamano, indice) => (
                   <div key={indice} className="flex items-center gap-2">
@@ -140,7 +166,7 @@ function PanelConfiguracion({
                     </span>
                     <input
                       type="number"
-                      min="1"
+                      min={estaClustering ? (tamaniosIniciales?.[indice] ?? 1) : 1}
                       value={tamano}
                       onChange={(e) => onCambiarTamanoMaximo(indice, e.target.value)}
                       className={`flex-1 bg-slate-900/50 border rounded px-2 py-1.5 text-xs outline-none transition-all ${
