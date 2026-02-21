@@ -506,6 +506,7 @@ class CluORT:  # Clustering online con restricciones de tamaño
         try:
             # Escalar el punto si está habilitado el escalado online
             nuevoP = self._escalarPuntoOnline(nuevoP)
+            puntoProcesado = nuevoP.copy() if isinstance(nuevoP, np.ndarray) else np.asarray(nuevoP, dtype=np.float32)
 
             # ============================================================
             # 1. Manejar el inicio de los centroides
@@ -520,6 +521,7 @@ class CluORT:  # Clustering online con restricciones de tamaño
                     "estado": "ok",
                     "detalle": "Primer punto asignado como centroide.",
                     "etiquetaAsignada": 0,
+                    "puntoProcesado": puntoProcesado,
                     "metricasInternas": {
                         "silueta": 0.0,
                         "dunn": 0.0
@@ -543,6 +545,7 @@ class CluORT:  # Clustering online con restricciones de tamaño
                     "estado": "ok",
                     "detalle": "No hay espacio en ningún cluster",
                     "etiquetaAsignada": None,
+                    "puntoProcesado": puntoProcesado,
                     "metricasInternas": self._calcularMetricasInternas(),
                     "metricasExternas": self._calcularMetricasExternas(),
                     "distribucion": self._calcularDistribucion()
@@ -563,6 +566,7 @@ class CluORT:  # Clustering online con restricciones de tamaño
                     "estado": "ok",
                     "detalle": "Nuevo cluster creado.",
                     "etiquetaAsignada": indAsignado,
+                    "puntoProcesado": puntoProcesado,
                     "metricasInternas": self._calcularMetricasInternas(),
                     "metricasExternas": self._calcularMetricasExternas(),
                     "distribucion": self._calcularDistribucion()
@@ -588,6 +592,7 @@ class CluORT:  # Clustering online con restricciones de tamaño
                 "estado": "ok",
                 "detalle": "Punto asignado correctamente.",
                 "etiquetaAsignada": indAsignado,
+                "puntoProcesado": puntoProcesado,
                 "metricasInternas": metricasInternas,
                 "metricasExternas": metricasExternas,
                 "distribucion": distribucion

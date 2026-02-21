@@ -305,6 +305,11 @@ async def agregarPuntoClustering(
 
     etiqueta_asignada = resultado.get("etiquetaAsignada")
     aceptado = etiqueta_asignada is not None
+    vectorParaPCA = resultado.get("puntoProcesado", vector)
+    if vectorParaPCA is None:
+        vectorParaPCA = vector
+    if not isinstance(vectorParaPCA, np.ndarray):
+        vectorParaPCA = np.asarray(vectorParaPCA, dtype=np.float32)
 
     proyeccionPCA = None
 
@@ -322,7 +327,7 @@ async def agregarPuntoClustering(
         # Solo usamos vectores de puntos ACEPTADOS en el clustering.
         buffer_pca: List[np.ndarray] = sesion.get("pcaBuffer", [])
         if aceptado:
-            buffer_pca.append(vector.astype(np.float64))
+            buffer_pca.append(vectorParaPCA.astype(np.float64))
             sesion["pcaBuffer"] = buffer_pca
 
         # Ajuste incremental: primero esperamos al menos 2 muestras aceptadas
@@ -336,7 +341,7 @@ async def agregarPuntoClustering(
                 pass
         elif hasattr(pca_modelo, "components_") and aceptado:
             try:
-                pca_modelo.partial_fit(vector.reshape(1, -1))
+                pca_modelo.partial_fit(vectorParaPCA.reshape(1, -1))
             except Exception:
                 pass
 
@@ -347,7 +352,7 @@ async def agregarPuntoClustering(
             # Solo proyectar y guardar puntos que fueron aceptados en el clustering
             if aceptado:
                 try:
-                    coord_punto = pca_modelo.transform(vector.reshape(1, -1))[0]
+                    coord_punto = pca_modelo.transform(vectorParaPCA.reshape(1, -1))[0]
                     pca_puntos[idFront] = {
                         "idFront": idFront,
                         "x": float(coord_punto[0]),
